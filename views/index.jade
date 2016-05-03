@@ -1,0 +1,10 @@
+extends layout
+
+h1= title
+#blogPosts
+  -each blogPost in BlogPosts
+    div.blogPost
+      div.created_at= blogPost.created_at
+      div.title
+          a(href="/lotuxi/"+blogPost._id)!= blogPost.title
+      div.post= blogPost.post
