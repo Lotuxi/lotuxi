@@ -63,4 +63,19 @@ BlogStore.prototype.save = function(posts, callback) {
     });
 };
 
+BlogStore.prototype.addCommentToArticle = function(postId, comment, callback) {
+    this.getCollection(function(error, blog_collection) {
+        if( error ) callback( error );
+        else {
+            blog_collection.update(
+                {_id: blog_collection.db.bson_serializer.ObjectID.createFromHexString(articleId)},
+                {"$push": {comments: comment}},
+                function(error, article){
+                    if( error ) callback(error);
+                    else callback(null, post)
+                });
+        }
+    });
+};
+
 exports.BlogStore = BlogStore;

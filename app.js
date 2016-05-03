@@ -23,15 +23,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var blogStore = new BlogStore('localhost', 27017);
+
 app.use('/', function(req, res) {
     blogStore.findAll( function(error, docs) {
-        res.render('index.jade', { locals: {
-            title: 'Blog',
-            blogPosts: docs
+        res.render('index.jade', {
+            locals: {
+                title: 'Blog',
+                posts:docs
             }
         });
     })
 });
+
 
 app.use('/blog/new', function(req, res) {
     res.render('blog_new.jade', { locals: {
@@ -41,7 +45,7 @@ app.use('/blog/new', function(req, res) {
 });
 
 app.post('/blog/new', function(req, res){
-    articleProvider.save({
+    blogStore.save({
         title: req.param('title'),
         body: req.param('body')
     }, function( error, docs) {
@@ -49,21 +53,17 @@ app.post('/blog/new', function(req, res){
     });
 });
 
-app.use('/users', users);
+//app.use('/users', users);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
 
 app.use('/blog/:id', function(req, res) {
-    blogStore.findById(req.params.id, function(error, blogPost) {
+    blogStore.findById(req.params.id, function(error, post) {
+        res.render('blog_new.jade',
         {locals: {
-        title: blogPost.title
+            title: post.title,
+            post: post
         }
-        };
+        });
     });
 });
 
@@ -72,13 +72,21 @@ app.post('/blog/addcomment', function(req, res) {
         person: req.param('person'),
         comment: req.param('comment'),
         created_at: new Date()
-    } , function(error, docs) {
-        res.redirect('/blog/'+ req.param('_id'))
+        } , function(error, docs) {
+            res.redirect('/blog/'+ req.param('_id'))
     });
 });
 
 
 // error handlers
+
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
 
 // development error handler
 // will print stacktrace
@@ -102,12 +110,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
-
-app.get('/', function(req, res) {
-  blogStore.findall(function(error, docs) {
-    res.send(docs)
-  });
-})
-
+app.listen(3000);
 
 module.exports = app;

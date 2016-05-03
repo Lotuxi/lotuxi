@@ -1,13 +1,10 @@
-extends layout
-
-
-h1= 'Lotuxi'
+include layout
 
 h1= title
-#blogPosts
-  -each blogPost in BlogPosts
-    div.blogPost
-      div.created_at= blogPost.created_at
-      div.title
-          a(href="/lotuxi/"+blogPost._id)!= blogPost.title
-      div.post= blogPost.post
+#posts
+    each post in posts
+        div.post
+            div.created_at= post.created_at
+            div.title
+                a(href="/blog/"+post._id.toHexString())!= post.title
+        div.body= post.body
