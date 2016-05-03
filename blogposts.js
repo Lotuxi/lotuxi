@@ -1,81 +1,50 @@
-var Db = require('mongodb').Db;
-var Connection = require('mongodb').Connection;
-var Server = require('mongodb').Server;
-var BSON = require('mongodb').BSON;
-var ObjectID = require('mongodb').ObjectID;
+var blogCounter = 1;
 
-BlogStore = function(host, port) {
-    this.db= new Db('node-mongo-blog', new Server(host, port, {auto_reconnect: true}, {}));
-    this.db.open(function(){});
-};
-
-BlogStore.prototype.getCollection= function(callback) {
-    this.db.collection('posts', function(error, blog_collection) {
-        if( error ) callback(error);
-        else callback(null, blog_collection);
-    });
-};
+BlogStore = function(){};
+BlogStore.prototype.testData = [];
 
 BlogStore.prototype.findAll = function(callback) {
-    this.getCollection(function(error, blog_collection) {
-        if( error ) callback(error)
-        else {
-            blog_collection.find().toArray(function(error, results) {
-                if( error ) callback(error)
-                else callback(null, results)
-            });
-        }
-    });
+    callback( null, this.testData )
 };
 
 BlogStore.prototype.findById = function(id, callback) {
-    this.getCollection(function(error, blog_collection) {
-        if(error) callback(error)
-        else {
-            blog_collection.findOne({_id: blog_collection.db.bson_serializer.ObjectID.createFromHexString(id)}, function(error, result) {
-             if(error) callback(error)
-             else callback(null, result)
-            });
+    var result = null;
+    for(var i =0;i<this.testData.length;i++) {
+        if( this.testData[i]._id == id ) {
+            result = this.testData[i];
+            break;
         }
-    });
+    }
+    callback(null, result);
 };
 
 BlogStore.prototype.save = function(posts, callback) {
-    this.getCollection(function(error, blog_collection) {
-        if( error ) callback(error)
-        else {
-            if( typeof(posts.length)=="undefined")
-                posts = [posts];
+    var post = null;
 
-            for( var i =0;i< posts.length;i++ ) {
-                post = posts[i];
-                post.created_at = new Date();
-                if( post.comments === undefined ) post.comments = [];
-                for(var j =0;j< post.comments.length; j++) {
-                    post.comments[j].created_at = new Date();
-                }
-            }
+    if( typeof(posts.length)=="undefined")
+        posts = [posts];
 
-            blog_collection.insert(posts, function() {
-                callback(null, posts);
-            });
+    for( var i =0;i< articles.length;i++ ) {
+        post = posts[i];
+        post._id = blogCounter++;
+        post.created_at = new Date();
+
+        if( post.comments === undefined )
+            post.comments = [];
+
+        for(var j =0;j< post.comments.length; j++) {
+            post.comments[j].created_at = new Date();
         }
-    });
+        this.testData[this.testData.length]= post;
+    }
+    callback(null, posts);
 };
 
-BlogStore.prototype.addCommentToArticle = function(postId, comment, callback) {
-    this.getCollection(function(error, blog_collection) {
-        if( error ) callback( error );
-        else {
-            blog_collection.update(
-                {_id: blog_collection.db.bson_serializer.ObjectID.createFromHexString(articleId)},
-                {"$push": {comments: comment}},
-                function(error, article){
-                    if( error ) callback(error);
-                    else callback(null, post)
-                });
-        }
-    });
-};
+/* Lets bootstrap with dummy data */
+new BlogStore().save([
+    {title: 'Post one', body: 'Body one', comments:[{author:'Bob', comment:'I love it'}, {author:'Dave', comment:'This is rubbish!'}]},
+    {title: 'Post two', body: 'Body two'},
+    {title: 'Post three', body: 'Body three'}
+], function(error, posts){});
 
 exports.BlogStore = BlogStore;
