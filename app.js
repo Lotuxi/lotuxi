@@ -58,6 +58,25 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+app.use('/blog/:id', function(req, res) {
+    blogStore.findById(req.params.id, function(error, blogPost) {
+        {locals: {
+        title: blogPost.title
+        }
+        };
+    });
+});
+
+app.post('/blog/addcomment', function(req, res) {
+    blogStore.addCommentToArticle(req.param('_id'), {
+        person: req.param('person'),
+        comment: req.param('comment'),
+        created_at: new Date()
+    } , function(error, docs) {
+        res.redirect('/blog/'+ req.param('_id'))
+    });
+});
+
 
 // error handlers
 
@@ -83,7 +102,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
-var blogStore = new BlogStore();
 
 app.get('/', function(req, res) {
   blogStore.findall(function(error, docs) {
