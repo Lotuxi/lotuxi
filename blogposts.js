@@ -24,7 +24,7 @@ BlogStore.prototype.save = function(posts, callback) {
     if( typeof(posts.length)=="undefined")
         posts = [posts];
 
-    for( var i =0;i< articles.length;i++ ) {
+    for( var i =0;i< posts.length;i++ ) {
         post = posts[i];
         post._id = blogCounter++;
         post.created_at = new Date();

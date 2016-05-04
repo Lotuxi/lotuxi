@@ -1,10 +1,8 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var BlogStore = require('./blogposts-mongod').BlogStore;
+var BlogStore = require('./blogposts').BlogStore;
 
 
 var routes = require('./routes/index');
@@ -16,11 +14,13 @@ var app = express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
-//app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(require('stylus').middleware({ src: __dirname + '/public' }));
-app.use(app.router);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(require('express-method-override')('method_override_param_name'));
 app.use(express.static(__dirname + '/public'));
+app.use(cookieParser());
 
 
 if ('development' == app.get('env')) {
@@ -31,9 +31,6 @@ if ('production' == app.get('env')) {
     app.set('mongodb_uri', 'mongo://localhost/prod');
 }
 
-app.configure('production', function(){
-    app.use(express.errorHandler());
-});
 
 var blogStore = new BlogStore('localhost', 27017);
 
