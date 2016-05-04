@@ -66,7 +66,7 @@ BlogStore.prototype.save = function(posts, callback) {
     this.getCollection(function(error, blog_collection) {
         if( error ) callback(error)
         else {
-            if( typeof(posts.length) == undefined)
+            if( typeof(posts.length) == "undefined")
                 posts = [posts];
 
             for( var i = 0; i < posts.length; i++ ) {

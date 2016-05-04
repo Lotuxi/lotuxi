@@ -1,7 +1,9 @@
 h1= title
-    each post in posts
-        div.post
-        div.created_at= post.created_at
-        div.title
-            a(href="/blog/"+post._id.toHexString())!= post.title
-        div.body= post.body
+#posts
+    each posts in blogStore
+        each post in posts
+            div.post
+            div.created_at= post.created_at
+            div.title
+                a(href="/blog/"+post._id.toHexString())!= post.title
+            div.body= post.body
